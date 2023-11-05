@@ -4,6 +4,8 @@ import pickle
 import sys
 
 import datasets
+import jax.tools.colab_tpu
+jax.tools.colab_tpu.setup_tpu()
 import jax
 import numpy as np
 from flax.training.common_utils import shard

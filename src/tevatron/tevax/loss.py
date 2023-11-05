@@ -1,3 +1,5 @@
+import jax.tools.colab_tpu
+jax.tools.colab_tpu.setup_tpu()
 import jax.numpy as jnp
 from jax import lax
 import optax

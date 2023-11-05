@@ -4,6 +4,8 @@ import sys
 from functools import partial
 
 import datasets
+import jax.tools.colab_tpu
+jax.tools.colab_tpu.setup_tpu()
 import jax
 import jax.numpy as jnp
 import optax

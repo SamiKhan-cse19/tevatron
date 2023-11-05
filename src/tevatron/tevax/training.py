@@ -1,6 +1,8 @@
 from functools import partial
 from typing import Tuple, Any, Union
 
+import jax.tools.colab_tpu
+jax.tools.colab_tpu.setup_tpu()
 import jax
 from jax import numpy as jnp
 
