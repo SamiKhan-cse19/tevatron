@@ -105,7 +105,7 @@ def main():
         pos_psgs = [p['title'] + " " + p['text'] for p in example['positive_passages']]
         neg_psgs = [p['title'] + " " + p['text'] for p in example['negative_passages']]
 
-        example['query_input_ids'] = dict(tokenize(query, max_length=data_args.q_max_len))
+        example['query'] = dict(tokenize(query, max_length=data_args.q_max_len))
         example['positives'] = [dict(tokenize(x, max_length=data_args.p_max_len)) for x in pos_psgs]
         example['negatives'] = [dict(tokenize(x, max_length=data_args.p_max_len)) for x in neg_psgs]
 
@@ -134,7 +134,7 @@ def main():
 
         def get_example(self, i, epoch):
             example = self.data[i]
-            q = example['query_input_ids']
+            q = example['query']
 
             pp = example['positives']
             p = pp[0]
