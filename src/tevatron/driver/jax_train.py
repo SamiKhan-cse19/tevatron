@@ -96,6 +96,8 @@ def main():
         datasets.load_dataset(data_args.dataset_name, data_args.dataset_language, cache_dir=model_args.cache_dir,
                               data_files=data_files)[data_args.dataset_split]
 
+    
+
     def tokenize_train(example):
         tokenize = partial(tokenizer, return_attention_mask=False, return_token_type_ids=False, padding=False,
                            truncation=True)
@@ -104,20 +106,21 @@ def main():
         neg_psgs = [p['title'] + " " + p['text'] for p in example['negative_passages']]
 
         example['query_input_ids'] = dict(tokenize(query, max_length=data_args.q_max_len))
-        example['pos_psgs_input_ids'] = [dict(tokenize(x, max_length=data_args.p_max_len)) for x in pos_psgs]
-        example['neg_psgs_input_ids'] = [dict(tokenize(x, max_length=data_args.p_max_len)) for x in neg_psgs]
+        example['positives'] = [dict(tokenize(x, max_length=data_args.p_max_len)) for x in pos_psgs]
+        example['negatives'] = [dict(tokenize(x, max_length=data_args.p_max_len)) for x in neg_psgs]
 
         return example
 
-    train_data = train_dataset.map(
-        tokenize_train,
-        batched=False,
-        num_proc=data_args.dataset_proc_num,
-        desc="Running tokenizer on train dataset",
-    )
+    if data_args.dataset_name != 'json':
+        train_data = train_dataset.map(
+            tokenize_train,
+            batched=False,
+            num_proc=data_args.dataset_proc_num,
+            desc="Running tokenizer on train dataset",
+        )
     train_data = train_data.filter(
-        function=lambda data: len(data["pos_psgs_input_ids"]) >= 1 and \
-                              len(data["neg_psgs_input_ids"]) >= data_args.train_n_passages-1, num_proc=64
+        function=lambda data: len(data["positives"]) >= 1 and \
+                            len(data["negatives"]) >= data_args.train_n_passages-1, num_proc=64
     )
 
     class TrainDataset:
@@ -133,10 +136,10 @@ def main():
             example = self.data[i]
             q = example['query_input_ids']
 
-            pp = example['pos_psgs_input_ids']
+            pp = example['positives']
             p = pp[0]
 
-            nn = example['neg_psgs_input_ids']
+            nn = example['negatives']
             off = epoch * (self.group_size - 1) % len(nn)
             nn = nn * 2
             nn = nn[off: off + self.group_size - 1]
