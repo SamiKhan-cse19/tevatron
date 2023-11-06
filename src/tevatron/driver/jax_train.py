@@ -92,7 +92,7 @@ def main():
     else:
         data_files = None
 
-    train_dataset = \
+    train_data = \
         datasets.load_dataset(data_args.dataset_name, data_args.dataset_language, cache_dir=model_args.cache_dir,
                               data_files=data_files)[data_args.dataset_split]
 
@@ -112,7 +112,7 @@ def main():
         return example
 
     if data_args.dataset_name != 'json':
-        train_data = train_dataset.map(
+        train_data = train_data.map(
             tokenize_train,
             batched=False,
             num_proc=data_args.dataset_proc_num,
